@@ -1,6 +1,8 @@
 from tkinter import *
+from tkinter import messagebox
 import pass_chars
 import random
+import pyperclip
 
 # CONST
 BLACK = "#191919"
@@ -19,12 +21,28 @@ def gen_pass():
     random.shuffle(picked_chars)
     my_pass = ''.join([str(item) for item in picked_chars])
     password_input_output.insert(0, f"{my_pass}")
+    pyperclip.copy(my_pass)
 
 
 # Saves Password info to data.txt
 def add_pass():
-    with open("data.txt", mode="a") as data:
-        data.write(f"{website_input.get()} | {email_username_input.get()} | {password_input_output.get()}\n")
+    web = website_input.get()
+    email = email_username_input.get()
+    password = password_input_output.get()
+
+    if len(web) == 0 or len(password) == 0:
+        messagebox.showinfo(title="Oops", message="Please make sure you haven't left any fields empty.")
+    else:
+        if_ok = messagebox.askokcancel(title=web,
+                                       message=f"Email: \n{email} \nPassword: \n{password} \n\nIs this correct?")
+
+        if if_ok:
+            with open("data.txt", mode="a") as data:
+                data.write(f"{web} | {email} | {password}\n")
+            website_input.delete(0, END)
+            email_username_input.delete(0, END)
+            password_input_output.delete(0, END)
+            email_username_input.insert(0, "email@mail.com")
 
 
 # GUI
