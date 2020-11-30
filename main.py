@@ -3,13 +3,14 @@ from tkinter import messagebox
 import pass_chars
 import random
 import pyperclip
+import json
 
 # CONST
 BLACK = "#191919"
 RED = "#f05454"
 GREY = "#495464"
 TEXT = "#dbf6e9"
-FONT = ("Roboto", 12, "normal")
+FONT = ("System", 12, "normal")
 
 
 # Password Generator
@@ -24,25 +25,53 @@ def gen_pass():
     pyperclip.copy(my_pass)
 
 
+# search function
+def search():
+    web_search = website_input.get()
+    try:
+        with open("data.json", "r") as data_search:
+            data = json.load(data_search)
+            email = data[web_search]['email']
+            password = data[web_search]['password']
+            if web_search in data:
+                print(data[web_search]['email'])
+                print(data[web_search]['password'])
+                messagebox.showinfo(title=web_search, message="Email: \n" + email + "\nPassword: \n" + password)
+        pyperclip.copy(password)
+    except KeyError:
+        print("key doesn't exist")
+        messagebox.showinfo(title="Search Error", message="Website not found.")
+    finally:
+        website_input.delete(0, END)
+        password_input_output.delete(0, END)
+
+
 # Saves Password info to data.txt
 def add_pass():
     web = website_input.get()
     email = email_username_input.get()
     password = password_input_output.get()
-
+    new_data = {web: {
+        "email": email,
+        "password": password,
+    }
+    }
     if len(web) == 0 or len(password) == 0:
         messagebox.showinfo(title="Oops", message="Please make sure you haven't left any fields empty.")
     else:
-        if_ok = messagebox.askokcancel(title=web,
-                                       message=f"Email: \n{email} \nPassword: \n{password} \n\nIs this correct?")
-
-        if if_ok:
-            with open("data.txt", mode="a") as data:
-                data.write(f"{web} | {email} | {password}\n")
+        try:
+            with open("data.json", "r") as data_file:
+                data = json.load(data_file)
+        except FileNotFoundError:
+            with open("data.json", "w") as data_file:
+                json.dump(new_data, data_file, indent=4)
+        else:
+            data.update(new_data)
+            with open("data.json", "w") as data_file:
+                json.dump(data, data_file, indent=4)
+        finally:
             website_input.delete(0, END)
-            email_username_input.delete(0, END)
             password_input_output.delete(0, END)
-            email_username_input.insert(0, "email@mail.com")
 
 
 # GUI
@@ -63,8 +92,8 @@ password_label = Label(text="Password:", bg=BLACK, fg=TEXT, font=FONT)
 password_label.grid(column=0, row=3)
 
 # ENTRY
-website_input = Entry(width=36)
-website_input.grid(column=1, row=1, columnspan=2)
+website_input = Entry(width=21)
+website_input.grid(column=1, row=1)
 website_input.focus()
 email_username_input = Entry(width=36)
 email_username_input.grid(column=1, row=2, columnspan=2)
@@ -73,6 +102,8 @@ password_input_output = Entry(width=21)
 password_input_output.grid(column=1, row=3)
 
 # BUTTONS
+search_btn = Button(width=12, text="Search", bg=GREY, fg=TEXT, activebackground=RED, command=search)
+search_btn.grid(column=2, row=1)
 gen_pass_btn = Button(width=12, text="Generate", bg=GREY, fg=TEXT, activebackground=RED, command=gen_pass)
 gen_pass_btn.grid(column=2, row=3)
 add_pass_btn = Button(width=34, text="Add Password", bg=GREY, fg=TEXT, activebackground=RED, command=add_pass)
