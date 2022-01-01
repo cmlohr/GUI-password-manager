@@ -386,8 +386,8 @@ h1:after {
 }
 .fa-twitter {
   position: absolute;
-  left: 0em;
-  right: 0.4em;
+  left: .2em;
+  right: 0em;
   top: 0.7em;
   bottom: 0;
   color: #fff;
@@ -395,7 +395,7 @@ h1:after {
 }
 .fa-linkedin-in {
   position: absolute;
-  left: 0.4em;
+  left: .8em;
   right: 0em;
   top: 0.7em;
   bottom: 0;
